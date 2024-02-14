@@ -1,0 +1,85 @@
+﻿@model ElectronicDisplayModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="my-2">
+    <form asp-action="Index" class="row row-cols-lg-auto g-3 align-items-center">
+        <div class="col-12">
+            <label class="visually-hidden" for="genreId">Genres</label>
+            <select class="form-select" id="genreId" name="genreId">
+                <option selected>Choose</option>
+                 @foreach(var genre in Model.Genres)
+                 {
+                     <option selected="@(genre.Id == Model.GenreId)" value="@genre.Id">@genre.GenreName</option>
+                 }
+            </select>
+        </div>
+        <div class="col-12">
+            <label class="visually-hidden" for="sterm">Search by title</label>
+            <div class="input-group">
+                <div class="input-group-text"></div>
+                <input type="text" class="form-control" value="@Model.STerm" id="sterm" name="sterm" placeholder="Search by title">
+            </div>
+
+            <div class="col-8">
+                 <button type="submit" class="btn btn-primary">Search</button>
+                 <a href="/Home/Index" class="btn btn-dark">Reset</a>
+            </div>
+         </div>
+    </form>
+</div>
+
+<div class="w-100 d-flex flex-wrap">
+    @foreach(var electronic in Model.Electronics)
+    {
+        <div class="card mx-2 mb-4" style="width: 16rem;">
+            @if (string.IsNullOrEmpty(electronic.Image))
+            {
+                <img style="width:100%;height:180px" src="/images/NoImage.jpg" class="card-img-top" alt="..." />
+            }
+            else
+            {
+                <img style="width:100%;height:180px" src="/images/@electronic.Image" class="card-img-top" alt="..." />
+            }
+            <div class="card-body">
+                <h5 class="card-title">@electronic.BrandName</h5>
+                <p class="card-text">
+                    <b>Genre: </b>@electronic.GenreName<br />
+                    <b>Author: </b>@electronic.AuthorName<br />
+                    <b>Price: </b>@electronic.Price<br />
+                </p>
+                <button type="button" onclick="add(@electronic.Id)" class="btn btn-primary">Add to cart</button>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts{
+    <script>
+        async function add(electronicId) {
+            try {
+                // var response = await fetch('/Account/CheckLoginStatus');
+                // if (response.status == 200) {
+                //     var result = await response.json();
+                    // if (result.isLoggedIn) {
+                        // User is logged in, proceed with adding to the cart
+                        var responseCart = await fetch(`/Cart/AddItem?electronicId=${electronicId}`);
+                        if (responseCart.status == 200) {
+                            var resultCart = await responseCart.json();
+                            var cartCountEl = document.getElementById("cartCount");
+                            cartCountEl.innerHTML = resultCart;
+                            window.location.href = "#cartCount";
+                        }
+                    // } 
+                    // else {
+                    //     // User is not logged in, redirect to the login page
+                    //     window.location.href = "/Identity/Account/Login";
+                    // }
+                // }
+            } catch (err) {
+                console.log(err);
+            }
+        }
+    </script>
+}
